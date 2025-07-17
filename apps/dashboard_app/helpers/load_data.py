@@ -267,7 +267,7 @@ class DashboardDataHandler:
 
         # Get the loan stats.
         loan_stats = self._get_loan_stats()
-
+        logger.info(f"#LOAD, !!loan_stats {loan_stats}")
         # Get the general stats.
         general_stats = self._get_general_stats(loan_stats=loan_stats)
         # Get the supply stats.

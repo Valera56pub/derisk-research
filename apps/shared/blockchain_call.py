@@ -2,6 +2,7 @@
 Provides utility functions for making blockchain calls on StarkNet.
 """
 
+import logging
 import time
 
 import starknet_py.cairo.felt
@@ -9,7 +10,7 @@ import starknet_py.hash.selector
 import starknet_py.net.client_models
 import starknet_py.net.networks
 from starknet_py.net.full_node_client import FullNodeClient
-
+logger = logging.getLogger(__name__)
 NET = FullNodeClient(node_url="https://starknet-mainnet.public.blastapi.io")
 
 
@@ -17,16 +18,25 @@ async def func_call(addr, selector, calldata):
     """
     Executes a contract call with retry on StarkNet.
     """
+    logger.info(f"FUNC_CALL {calldata}")
+    print("FUNC_CALL_E")
+    logger.info(selector)
+    logger.info("FUNC CALL2")
+    logger.info(starknet_py.hash.selector.get_selector_from_name(selector))
     call = starknet_py.net.client_models.Call(
         to_addr=addr,
         selector=starknet_py.hash.selector.get_selector_from_name(selector),
         calldata=calldata,
     )
-    try:
-        res = await NET.call_contract(call)
-    except BaseException:
-        time.sleep(10)
-        res = await NET.call_contract(call)
+    logger.info("FUNC CALL __A")
+    # try:
+    res = await NET.call_contract(call)
+    #     logger.info("FUNC CALL __B")
+    # except BaseException:
+    #     time.sleep(10)
+    #     res = await NET.call_contract(call, block_number="latest")
+    #     logger.info("FUNC CALL __C")
+    logger.info("FUNC CALL _XXA")
     return res
 
 

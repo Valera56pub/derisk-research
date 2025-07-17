@@ -2,6 +2,7 @@
 This module defines the Dashboard class for rendering a DeRisk dashboard using Streamlit.
 """
 
+import logging
 import numpy as np
 import pandas as pd
 import plotly
@@ -39,7 +40,7 @@ from .utils import (
     transform_loans_data,
     transform_main_chart_data,
 )
-
+logger = logging.getLogger(__name__)
 
 class Dashboard:
     """
@@ -65,6 +66,7 @@ class Dashboard:
         collateral_stats: dict | None = None,
         debt_stats: dict | None = None,
         utilization_stats: dict | None = None,
+        user_history: dict | None = None,
     ):
         """
         Initialize the dashboard.
@@ -86,6 +88,7 @@ class Dashboard:
         self.collateral_token_price = 0
         self.state = state
         self.general_stats = pd.DataFrame(general_stats)
+        self.user_history = pd.DataFrame(user_history)  
         self.supply_stats = pd.DataFrame(supply_stats)
         self.collateral_stats = pd.DataFrame(collateral_stats)
         self.debt_stats = pd.DataFrame(debt_stats)
@@ -432,7 +435,7 @@ class Dashboard:
         """
         Fetch and return the transaction history for a specific user.
         """
-        user_data = get_user_history(wallet_id)
+        user_data = get_user_history(wallet_id, self.user_history)
         if user_data is None or user_data.empty:
             st.error("No data found for this user.")
             return None
@@ -518,11 +521,43 @@ class Dashboard:
         This function executes/runs all chart loading methods.
         """
         # Load sidebar with protocol settings
-        self.load_sidebar()
-        self.load_main_chart()
-        self.load_loans_with_low_health_factor_chart()
-        self.load_top_loans_chart()
-        self.load_detail_loan_chart()
-        self.load_comparison_lending_protocols_chart()
-        self.get_user_history()
-        self.load_leaderboard()
+        try:
+            self.load_sidebar()
+        except Exception as e:
+            logger.info(f'#ERROR load_sidebar: {e}')
+
+        try:
+            self.load_main_chart()
+        except Exception as e:
+            logger.info(f'#ERROR load_main_chart: {e}')
+
+        try:
+            self.load_loans_with_low_health_factor_chart()
+        except Exception as e:
+            logger.info(f'#ERROR load_loans_with_low_health_factor_chart: {e}')
+
+        try:
+            self.load_top_loans_chart()
+        except Exception as e:
+            logger.info(f'#ERROR load_top_loans_chart: {e}')
+
+        try:
+            self.load_detail_loan_chart()
+        except Exception as e:
+            logger.info(f'#ERROR load_detail_loan_chart: {e}')
+
+        try:
+            self.load_comparison_lending_protocols_chart()
+        except Exception as e:
+            logger.info(f'#ERROR load_comparison_lending_protocols_chart: {e}')
+
+        try:
+            self.get_user_history("0x2a783f9dcde67f582fc3c7f4bd5ebc92fdce306ea11a8d37d7495cd82021737")
+        except Exception as e:
+            logger.info(f'#ERROR get_user_history: {e}')
+
+        try:
+            self.load_leaderboard()
+        except Exception as e:
+            logger.info(f'#ERROR load_leaderboard: {e}')
+      

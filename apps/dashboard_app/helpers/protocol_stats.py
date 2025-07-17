@@ -5,6 +5,7 @@ This module handles the collection and computation of statistics related to the 
 import asyncio
 from collections import defaultdict
 from decimal import Decimal
+import logging
 
 import numpy as np
 import pandas as pd
@@ -20,6 +21,7 @@ from dashboard_app.helpers.loans_table import (
 from .tools import get_underlying_address
 from shared.helpers import get_addresses, add_leading_zeros
 
+logger = logging.getLogger(__name__)
 
 def get_general_stats(
     states: list[State],
@@ -38,27 +40,34 @@ def get_general_stats(
         number_of_active_borrowers = (
             state.compute_number_of_active_loan_entities_with_debt()
         )
-        data.append(
-            {
-                "Protocol": protocol,
-                "Number of active users": number_of_active_users,
-                # At the moment, Hashstack V0 and Hashstack V1 are the only protocols
-                #  for which the number of active
-                # loans doesn't equal the number of active users.
-                # The reason is that Hashstack V0 and Hashstack V1
-                # allow for liquidations on the loan level, whereas other
-                #  protocols use user-level liquidations.
-                "Number of active loans": state.compute_number_of_active_loan_entities(),
-                "Number of active borrowers": number_of_active_borrowers,
-                "Total debt (USD)": round(loan_stats[protocol]["Debt (USD)"].sum(), 4),
-                "Total risk adjusted collateral (USD)": round(
-                    loan_stats[protocol]["Risk-adjusted collateral (USD)"].sum(), 4
-                ),
-                "Total Collateral (USD)": round(
-                    loan_stats[protocol]["Collateral (USD)"].sum(), 4
-                ),
-            }
-        )
+        print('#HHH')
+        logger.info('#EEE')
+        print(loan_stats)
+        logger.info(loan_stats)
+        print(loan_stats[protocol])
+        logger.info(loan_stats[protocol])
+        if not loan_stats[protocol].empty:
+            data.append(
+                {
+                    "Protocol": protocol,
+                    "Number of active users": number_of_active_users,
+                    # At the moment, Hashstack V0 and Hashstack V1 are the only protocols
+                    #  for which the number of active
+                    # loans doesn't equal the number of active users.
+                    # The reason is that Hashstack V0 and Hashstack V1
+                    # allow for liquidations on the loan level, whereas other
+                    #  protocols use user-level liquidations.
+                    "Number of active loans": state.compute_number_of_active_loan_entities(),
+                    "Number of active borrowers": number_of_active_borrowers,
+                    "Total debt (USD)": round(loan_stats[protocol]["Debt (USD)"].sum(), 4),
+                    "Total risk adjusted collateral (USD)": round(
+                        loan_stats[protocol]["Risk-adjusted collateral (USD)"].sum(), 4
+                    ),
+                    "Total Collateral (USD)": round(
+                        loan_stats[protocol]["Collateral (USD)"].sum(), 4
+                    ),
+                }
+            )
     data = pd.DataFrame(data)
     return data
 
@@ -267,9 +276,9 @@ def get_utilization_stats(
     :return: DataFrame with utilization stats
     """
 
-    general_stats.columns = general_stats.columns.str.lower()
-    supply_stats.columns = supply_stats.columns.str.lower()
-    debt_stats.columns = debt_stats.columns.str.lower()
+    general_stats.columns = general_stats.columns.astype(str).str.lower()
+    supply_stats.columns = supply_stats.columns.astype(str).str.lower()
+    debt_stats.columns = debt_stats.columns.astype(str).str.lower()
 
     required_columns_general = {"protocol", "total debt (usd)"}
     required_columns_supply = {"total supply (usd)"}

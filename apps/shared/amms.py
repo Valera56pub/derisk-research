@@ -148,7 +148,7 @@ class MySwapPool(Pool):
         self.token_amounts.values[self.tokens[1].symbol] = Decimal(pool[5])
 
 
-@dataclass
+# @dataclass
 class SwapAmmToken(TokenSettings):
     """SwapAmmToken class for managing token settings and balances."""
 

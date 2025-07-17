@@ -483,6 +483,14 @@ COPY public.health_ratio_level ("timestamp", user_id, value, protocol_id, id) FR
 \.
 
 
+COPY public.loan_state ("user", deposit, block, "timestamp", protocol_id, collateral, debt, id) FROM stdin;
+0x2a783f9dcde67f582fc3c7f4bd5ebc92fdce306ea11a8d37d7495cd82021737	{"amount": 1000, "currency": "EUR"}	48689	1622548800	zkLend	{"amount": 500, "currency": "EUR"}	{"amount": 200, "currency": "EUR"}	199f70cb-a12c-442e-b0f4-acebaabf2933
+0x2a783f9dcde67f582fc3c7f4bd5ebc92fdce306ea11a8d37d7495cd82021737	{"amount": 2000, "currency": "USD"}	48813	1622548860	zkLend	{"amount": 1000, "currency": "USD"}	{"amount": 300, "currency": "USD"}	189f70cb-a12c-442e-b0f4-acebaabf2933
+0x2a783f9dcde67f582fc3c7f4bd5ebc92fdce306ea11a8d37d7495cd82021737	{"amount": 1500, "currency": "GBP"}	48822	1622548920	zkLend	{"amount": 700, "currency": "GBP"}	{"amount": 400, "currency": "GBP"}	179f70cb-a12c-442e-b0f4-acebaabf2933
+0x2a783f9dcde67f582fc3c7f4bd5ebc92fdce306ea11a8d37d7495cd82021737	{"amount": 2500, "currency": "EUR"}	48883	1622548980	zkLend	{"amount": 1200, "currency": "EUR"}	{"amount": 500, "currency": "EUR"}	169f70cb-a12c-442e-b0f4-acebaabf2933
+0x2a783f9dcde67f582fc3c7f4bd5ebc92fdce306ea11a8d37d7495cd82021737	{"amount": 3000, "currency": "USD"}	48913	1622549040	zkLend	{"amount": 1500, "currency": "USD"}	{"amount": 600, "currency": "USD"}	159f70cb-a12c-442e-b0f4-acebaabf2933
+\.
+
 --
 -- Data for Name: interest_rate; Type: TABLE DATA; Schema: public; Owner: postgres
 --

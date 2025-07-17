@@ -34,10 +34,13 @@ services:
     env_file:
       - ../../apps/data_handler/.env.dev
     environment:
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "password"
+      POSTGRES_DB: "postgres"
+      DB_HOST: "db"
+      DB_PORT: "5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    # - ../../apps/data_handler/init-db:/docker-entrypoint-initdb.d # Automatically run initialization scripts
     networks:
       - data_handler_network
     ports:
