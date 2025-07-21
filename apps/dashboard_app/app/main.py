@@ -9,8 +9,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 
 from dashboard_app.app.api import watcher
+from dashboard_app.app.api import telegram
 from dashboard_app.app.api import history
-from dashboard_app.app.api import oauth
+from dashboard_app.app.api import auth
+from dashboard_app.app.api import loan_state
 
 
 @asynccontextmanager
@@ -51,7 +53,9 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory="dashboard_app/app/static"), name="static")
 app.include_router(watcher.router)
 app.include_router(history.router)
-app.include_router(oauth.router)
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
+app.include_router(loan_state.router, prefix="/api/v1/loans", tags=["loans"])
+app.include_router(telegram.router)
 
 
 @app.middleware("http")

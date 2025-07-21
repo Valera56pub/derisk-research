@@ -1,7 +1,9 @@
-""" Abstract base classes for order book data and API connectors. """
+"""Abstract base classes for order book data and API connectors."""
+
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
 from decimal import Decimal
+import time
 
 import requests
 
@@ -11,7 +13,8 @@ from .constants import TOKEN_MAPPING, TokenConfig
 
 
 class OrderBookBase(ABC):
-    """ Base class for order book data """
+    """Base class for order book data"""
+
     DEX: str = None
     MIN_PRICE_RANGE = Decimal("0.0001")
     MAX_PRICE_RANGE = Decimal("100.0")
@@ -46,7 +49,7 @@ class OrderBookBase(ABC):
         """
         token_config = TOKEN_MAPPING.get(token)
         if token_config:
-            return token_config.decimals
+            return Decimal(token_config.decimals)
         return Decimal("0")
 
     @abstractmethod
@@ -86,7 +89,7 @@ class OrderBookBase(ABC):
         :param tick: tick value
         :return: square root ratio
         """
-        return (Decimal("1.000001").sqrt()**tick) * (Decimal(2)**128)
+        return (Decimal("1.000001").sqrt() ** tick) * (Decimal(2) ** 128)
 
     @abstractmethod
     def tick_to_price(self, tick: Decimal) -> Decimal:
@@ -130,7 +133,7 @@ class AbstractionAPIConnector(ABC):
     API_URL: str = None
 
     @classmethod
-    def send_get_request(cls, endpoint: str, params=None) -> dict:
+    def send_get_request(cls, endpoint: str, params=None, max_retries=3) -> dict:
         """
         Send a GET request to the specified endpoint with optional parameters.
 
@@ -138,17 +141,26 @@ class AbstractionAPIConnector(ABC):
         :type endpoint: str
         :param params: Dictionary of URL parameters to append to the URL.
         :type params: dict, optional
-        :return: A JSON response from the API if the request is successful; 
+        :return: A JSON response from the API if the request is successful;
         otherwise, a dictionary with an "error" key
         containing the error message.
         :rtype: dict
         """
-        try:
-            response = requests.get(f"{cls.API_URL}{endpoint}", params=params)
-            response.raise_for_status()
-            return response.json()
-        except requests.RequestException as e:
-            return {"error": str(e)}
+        attempts = 0
+        exc: Exception | None = None
+        while attempts < max_retries:
+            try:
+                response = requests.get(f"{cls.API_URL}{endpoint}", params=params)
+                if response.status_code == 429:
+                    timeout_secs = int(response.headers.get("retry-after", 0)) or 60
+                    time.sleep(timeout_secs / 60)
+                    continue
+                response.raise_for_status()
+                return response.json()
+            except requests.RequestException as e:
+                exc = e
+            attempts += 1
+        return {"error": str(exc or "max retries exceeded")}
 
     @classmethod
     def send_post_request(cls, endpoint: str, data=None, json=None) -> dict:
@@ -161,7 +173,7 @@ class AbstractionAPIConnector(ABC):
         :type data: dict, optional
         :param json: Dictionary of JSON data to send in the request body.
         :type json: dict, optional
-        :return: A JSON response from the API if the request is successful; 
+        :return: A JSON response from the API if the request is successful;
         otherwise, a dictionary with an "error" key
         containing the error message.
         :rtype: dict
