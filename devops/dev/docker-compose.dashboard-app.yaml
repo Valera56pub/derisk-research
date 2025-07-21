@@ -7,25 +7,13 @@ services:
     image: postgres:16
     container_name: postgres_dev
     env_file:
-      - ../../apps/data_handler/.env.dev
+      - ../../apps/data_handler/.env
     environment:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "password"
       POSTGRES_DB: "postgres"
       DB_HOST: "db"
       DB_PORT: "5432"
-
-  streamlit:
-    build:
-      context: ../../apps
-      dockerfile: dashboard_app/Dockerfile
-    ports:
-      - "8501:8501"
-    env_file:
-      - ../../apps/dashboard_app/.env.dev
-    depends_on:
-      db:
-        condition: service_healthy
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -38,27 +26,27 @@ services:
       timeout: 5s
       retries: 5
 
-  # streamlit:
-  #   build:
-  #     context: ../../apps
-  #     dockerfile: dashboard_app/Dockerfile
-  #   ports:
-  #     - "8501:8501"
-  #   env_file:
-  #     - ../../apps/dashboard_app/.env
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
-  #   volumes:
-  #     - ../../apps/dashboard_app:/app/dashboard_app
-  #   networks:
-  #     - dashboard_app_network
-  #   environment:
-  #     POSTGRES_USER: "postgres"
-  #     POSTGRES_PASSWORD: "password"
-  #     POSTGRES_DB: "postgres"
-  #     DB_HOST: "db"
-  #     DB_PORT: "5432"
+  streamlit:
+    build:
+      context: ../../apps
+      dockerfile: dashboard_app/Dockerfile
+    ports:
+      - "8501:8501"
+    env_file:
+      - ../../apps/dashboard_app/.env
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ../../apps/dashboard_app:/app/dashboard_app
+    networks:
+      - dashboard_app_network
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "password"
+      POSTGRES_DB: "postgres"
+      DB_HOST: "db"
+      DB_PORT: "5432"
 
   backend:
     build: 
